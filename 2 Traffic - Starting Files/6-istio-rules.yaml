@@ -1,0 +1,56 @@
+kind: VirtualService
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: fleetman-staff-service # just a name of virtual service, does not matter what it called
+  namespace: default
+  uid: daad2207-5442-4fb9-913a-33d80fe2827b
+  resourceVersion: '150615'
+  generation: 1
+  creationTimestamp: '2022-08-19T08:23:30Z'
+  labels:
+    kiali_wizard: weighted_routing
+  managedFields:
+    - manager: Go-http-client
+      operation: Update
+      apiVersion: networking.istio.io/v1alpha3
+      time: '2022-08-19T08:23:30Z'
+spec:
+  hosts:
+    - fleetman-staff-service.default.svc.cluster.local # service DNS name 
+    # - fleetman-staff-service.<namespace>.svc.cluster.local
+  http:
+    - route:
+        - destination:
+            host: fleetman-staff-service.default.svc.cluster.local # target DNS name
+            subset: safe-group # pointed to the name defined in destination rule
+          weight: 90
+        - destination:
+            host: fleetman-staff-service.default.svc.cluster.local # target DNS name
+            subset: risky-group
+          weight: 10
+---
+kind: DestinationRule # define which pods should be part of each subset
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: fleetman-staff-service # does not matter what it called
+  namespace: default
+  uid: 25c94021-0585-40b1-bd7b-b68c055e5c34
+  resourceVersion: '150614'
+  generation: 1
+  creationTimestamp: '2022-08-19T08:23:30Z'
+  labels:
+    kiali_wizard: weighted_routing
+  managedFields:
+    - manager: Go-http-client
+      operation: Update
+      apiVersion: networking.istio.io/v1alpha3
+      time: '2022-08-19T08:23:30Z'
+spec:
+  host: fleetman-staff-service.default.svc.cluster.local # service
+  subsets:
+    - labels: # selector
+        version: safe
+      name: safe-group
+    - labels:
+        version: risky
+      name: risky-group
